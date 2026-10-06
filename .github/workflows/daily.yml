@@ -10,7 +10,7 @@ on:
       command:
         description: "What to do"
         type: choice
-        options: [run, generate, approve, reject, publish, status, propose-topics]
+        options: [run, generate, approve, reject, publish, status, propose-topics, models]
         default: status
       day:
         description: "Day number (approve / reject / publish)"
@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: write
+  models: read      # free GitHub Models access via GITHUB_TOKEN
 
 concurrency:
   group: aixqa-pipeline
@@ -38,6 +39,7 @@ jobs:
 
       - name: Execute
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
           LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}

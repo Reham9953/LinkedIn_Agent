@@ -11,6 +11,7 @@ Usage:
   python -m src.main publish [--day N]    publish an approved post now
   python -m src.main status               series progress
   python -m src.main propose-topics       suggest new roadmap topics for review
+  python -m src.main models               list available GitHub Models IDs
 """
 import argparse
 import sys
@@ -51,8 +52,13 @@ def generate_draft(con, cfg, roadmap, profile, llm) -> dict:
 
     notes, sources = "", []
     if topic.get("research"):
-        log("  researching current information…")
-        notes, sources = generator.research(llm, topic)
+        if llm.can_search:
+            log("  researching current information…")
+            notes, sources = generator.research(llm, topic)
+        else:
+            log("  research needed but provider has no web search — writing without version-specific claims")
+            notes = ("NO RESEARCH AVAILABLE. Do not mention version numbers, release dates, new features, "
+                     "pricing or statistics. Stick to stable, well-established concepts.")
 
     related = selector.build_on(topic, history)
     label = cfg["publishing"]["series_label"].format(day=day)
@@ -85,8 +91,9 @@ def generate_draft(con, cfg, roadmap, profile, llm) -> dict:
         "sources": sources,
         "scores": {**result["scores"], "total_50": result["total_50"], "passed": result["passed"]},
         "status": "Draft",
-        "notes": "" if result["passed"] else "Quality threshold not met: "
-                 + "; ".join(result["rule_issues"] + result["issues"])[:1000],
+        "notes": ("Research skipped (no web search) — double-check tool details before approving. "
+                  if topic.get("research") and not sources else "") + ("" if result["passed"] else "Quality threshold not met: "
+                 + "; ".join(result["rule_issues"] + result["issues"])[:1000]),
     }
     db.upsert(con, rec)
     write_review_files(rec, result, cfg)
@@ -108,6 +115,8 @@ def write_review_files(rec, result, cfg):
     issues = result.get("rule_issues", []) + result.get("issues", [])
     if issues:
         lines += ["", "## Remaining issues"] + [f"- {i}" for i in issues]
+    if rec.get("notes"):
+        lines += ["", f"> ⚠️ {rec['notes']}"]
     lines += ["", "## Sources"] + ([f"- [{x['title'] or x['url']}]({x['url']})" for x in rec["sources"]] or ["- none (no research required)"])
     lines += ["", "## Preview (as it will appear on LinkedIn)", "", "```", render(rec["post"], cfg), "```"]
     (DRAFTS / f"day-{rec['day']:02d}.review.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
@@ -227,6 +236,12 @@ def cmd_propose(args, con, cfg, roadmap, profile):
     log(f"Review {out} and copy the topics you like into roadmap.yaml (add unique ids).")
 
 
+def cmd_models(*_):
+    from .llm import list_github_models
+    for m in list_github_models():
+        log(m)
+
+
 def main():
     p = argparse.ArgumentParser(description="AI × QA LinkedIn pipeline")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -239,12 +254,13 @@ def main():
     pb = sub.add_parser("publish"); pb.add_argument("--day", type=int)
     sub.add_parser("status")
     sub.add_parser("propose-topics")
+    sub.add_parser("models")
     args = p.parse_args()
 
     cfg, roadmap, profile = load("config.yaml"), load("roadmap.yaml"), load("profile.yaml")
     con = db.connect()
     {"run": cmd_run, "generate": cmd_generate, "approve": cmd_approve, "reject": cmd_reject,
-     "publish": cmd_publish, "status": cmd_status, "propose-topics": cmd_propose}[args.cmd](
+     "publish": cmd_publish, "status": cmd_status, "propose-topics": cmd_propose, "models": cmd_models}[args.cmd](
         args, con, cfg, roadmap, profile)
 
 

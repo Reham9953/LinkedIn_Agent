@@ -1,8 +1,9 @@
 # ─────────────────────────────────────────────────────────────
 #  AI × QA — LinkedIn content system configuration
 #  Secrets are NEVER stored here. They come from environment
-#  variables (GitHub Actions secrets): ANTHROPIC_API_KEY,
-#  LINKEDIN_ACCESS_TOKEN, LINKEDIN_PERSON_URN.
+#  variables: GITHUB_TOKEN (automatic in GitHub Actions),
+#  LINKEDIN_ACCESS_TOKEN, LINKEDIN_PERSON_URN, and ANTHROPIC_API_KEY
+#  only if you switch llm.provider to "anthropic".
 # ─────────────────────────────────────────────────────────────
 
 schedule:
@@ -21,8 +22,15 @@ publishing:
   unicode_bold: true       # convert **bold** to Unicode bold (LinkedIn has no markdown)
 
 llm:
-  model: "claude-sonnet-5-5"
-  judge_model: "claude-sonnet-5-5"
+  # "github"    -> GitHub Models: FREE, no key needed in GitHub Actions. No web search,
+  #                so research topics are written without version-specific claims.
+  # "anthropic" -> Claude API: paid, includes web search with sources.
+  provider: "github"
+  # GitHub Models IDs use publisher/model. Run `python -m src.main models` (or the
+  # "models" workflow command) to list what's currently available and swap if needed.
+  model: "openai/gpt-4.1"
+  judge_model: "openai/gpt-4.1-mini"
+  # For provider "anthropic" use e.g. model: "claude-sonnet-5-5", judge_model: "claude-haiku-4-5-20251001"
   max_tokens: 2000
   web_search_tool: "web_search_20250305"
   max_searches: 5

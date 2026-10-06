@@ -6,8 +6,8 @@ A daily pipeline that writes one educational LinkedIn post on QA, test automatio
 GitHub Actions cron (Africa/Cairo window)
   → load history (data/content.db)
   → select next roadmap topic (phase order, 30-day cooldown, weekday rotation)
-  → research with web search (only topics flagged research: true)
-  → generate post (Claude API, style guide + your profile)
+  → research with web search (Claude provider only; topics flagged research: true)
+  → generate post (GitHub Models for free, or Claude API; style guide + your profile)
   → quality check: rule checks + LLM judge on 8 criteria, regenerate up to 3×
   → review gate (default) or auto-publish
   → publish via LinkedIn Posts API
@@ -30,7 +30,9 @@ GitHub Actions cron (Africa/Cairo window)
 
 1. **Create a private GitHub repository** and push this folder.
 2. **Fill in `profile.yaml` honestly.** Tools you've actually used, things you're exploring, completed certifications.
-3. **Anthropic API key** from the Claude Console → repository secret `ANTHROPIC_API_KEY`.
+3. **AI model access — free by default.** `llm.provider: "github"` uses GitHub Models, which runs on the `GITHUB_TOKEN` that GitHub Actions creates automatically. No payment and no secret to add; the workflow already requests `models: read`. Run the `models` workflow command to list available model IDs if the defaults in `config.yaml` are ever retired. Free-tier limits are per day and per model; this pipeline makes roughly 2–7 calls a day.
+   - Trade-off: GitHub Models has no web search, so topics marked `research: true` are written without version numbers, release dates or new-feature claims, and the review sheet reminds you to double-check them.
+   - Optional upgrade: switch `provider` to `"anthropic"`, add an `ANTHROPIC_API_KEY` secret from a personal Claude Console account, and research with cited sources is enabled.
 4. **LinkedIn app** at linkedin.com/developers:
    - Create an app (it must be associated with a LinkedIn Page; your own Page works).
    - Add the products *Share on LinkedIn* and *Sign In with LinkedIn using OpenID Connect*.

@@ -8,6 +8,8 @@ from pathlib import Path
 from src import db, linkedin, main, quality, selector
 
 class FakeLLM:
+    can_search = False
+
     def __init__(self):
         self.calls = 0
 
