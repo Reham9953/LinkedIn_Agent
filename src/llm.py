@@ -17,6 +17,18 @@ GEMINI_MODELS = "https://generativelanguage.googleapis.com/v1beta/models"
 RETRY = (429, 500, 502, 503, 529)
 
 
+class Overloaded(RuntimeError):
+    """The provider's model is temporarily overloaded/unavailable (HTTP 5xx)."""
+
+
+class ModelMissing(RuntimeError):
+    """The model ID does not exist for this account (HTTP 404)."""
+
+
+class RateLimited(RuntimeError):
+    """Our quota or per-minute limit was hit (HTTP 429)."""
+
+
 class LLM:
     def __init__(self, cfg: dict):
         self.cfg = cfg["llm"]
@@ -30,21 +42,28 @@ class LLM:
     def can_search(self) -> bool:
         return self.provider == "anthropic"
 
-    def _post(self, url: str, headers: dict, body: dict) -> dict:
-        for attempt in range(5):
+    def _post(self, url: str, headers: dict, body: dict, attempts: int = 4) -> dict:
+        code, text = 0, ""
+        for attempt in range(attempts):
             r = requests.post(url, headers=headers, json=body, timeout=180)
-            if r.status_code in RETRY:
+            code, text = r.status_code, r.text[:300]
+            if code in RETRY:
                 wait = int(r.headers.get("retry-after", 0) or 0) or 2 ** attempt * 5
-                print(f"  rate limited ({r.status_code}), waiting {wait}s…", flush=True)
-                time.sleep(min(wait, 120))
+                kind = "rate limited" if code == 429 else "model busy"
+                print(f"  {kind} (HTTP {code}) on {body.get('model')}, retrying in {wait}s…", flush=True)
+                time.sleep(min(wait, 60))
                 continue
-            if r.status_code >= 400:
-                raise RuntimeError(f"LLM API error {r.status_code}: {r.text[:500]}")
+            if code == 404:
+                raise ModelMissing(f"Model {body.get('model')} not found (HTTP 404)")
+            if code >= 400:
+                raise RuntimeError(f"LLM API error {code}: {text}")
             try:
                 return r.json()
             except ValueError:
-                raise RuntimeError(f"LLM API returned non-JSON (HTTP {r.status_code}): {r.text[:200]!r}")
-        raise RuntimeError("LLM API still rate limited after retries (daily free quota may be used up).")
+                raise RuntimeError(f"LLM API returned non-JSON (HTTP {code}): {text[:200]!r}")
+        if code == 429:
+            raise RateLimited(f"Rate limit / quota reached (HTTP 429): {text}")
+        raise Overloaded(f"Model {body.get('model')} unavailable (HTTP {code}): {text}")
 
     # ── providers ────────────────────────────────────────────
     def _gemini(self, system, prompt, model):
@@ -82,10 +101,22 @@ class LLM:
     # ── public API ───────────────────────────────────────────
     def complete(self, system: str, prompt: str, model: str | None = None,
                  web_search: bool = False) -> tuple[str, list[dict]]:
-        model = model or self.cfg["model"]
-        if self.provider == "gemini":
-            return self._gemini(system, prompt, model)
-        return self._anthropic(system, prompt, model, web_search)
+        """Try the requested model, then the configured fallbacks if it is overloaded."""
+        first = model or self.cfg["model"]
+        chain = [first] + [m for m in self.cfg.get("fallback_models", []) if m != first]
+        last_err = None
+        for i, m in enumerate(chain):
+            if i:
+                print(f"  switching to fallback model {m}", flush=True)
+            try:
+                if self.provider == "gemini":
+                    return self._gemini(system, prompt, m)
+                return self._anthropic(system, prompt, m, web_search)
+            except (Overloaded, ModelMissing) as e:
+                print(f"  {e}", flush=True)
+                last_err = e
+        raise RuntimeError(f"All models busy ({', '.join(chain)}). This is temporary on Google's side; "
+                           f"re-run the workflow in a few minutes. Last error: {last_err}")
 
     def complete_json(self, system: str, prompt: str, model: str | None = None,
                       web_search: bool = False) -> tuple[dict, list[dict]]:
