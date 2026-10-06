@@ -1,0 +1,61 @@
+name: AI x QA daily post
+
+on:
+  schedule:
+    # GitHub cron is UTC. Two wake-ups cover Cairo winter (UTC+2) and summer (UTC+3);
+    # the code only acts inside the configured local publish window and never posts twice a day.
+    - cron: "5 6,7 * * *"
+  workflow_dispatch:
+    inputs:
+      command:
+        description: "What to do"
+        type: choice
+        options: [run, generate, approve, reject, publish, status, propose-topics]
+        default: status
+      day:
+        description: "Day number (approve / reject / publish)"
+        required: false
+      note:
+        description: "Reason (reject only)"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: aixqa-pipeline
+  cancel-in-progress: false
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+
+      - name: Execute
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+          CMD: ${{ github.event.inputs.command || 'run' }}
+          DAY: ${{ github.event.inputs.day }}
+          NOTE: ${{ github.event.inputs.note }}
+        run: |
+          ARGS=""
+          if [ -n "$DAY" ]; then ARGS="--day $DAY"; fi
+          if [ "$CMD" = "reject" ]; then python -m src.main reject $ARGS --note "$NOTE"
+          else python -m src.main $CMD $ARGS
+          fi
+
+      - name: Save content history
+        if: always()
+        run: |
+          git config user.name "aixqa-bot"
+          git config user.email "aixqa-bot@users.noreply.github.com"
+          git add data/
+          git diff --cached --quiet || git commit -m "content: ${{ github.event.inputs.command || 'run' }} $(date -u +%F)"
+          git push

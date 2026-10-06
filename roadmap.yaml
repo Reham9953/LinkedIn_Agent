@@ -1,0 +1,114 @@
+# Pillars: P1 AI Fundamentals · P2 GenAI in Testing · P3 AI Risks · P4 AI + Automation
+#          P5 Traditional Automation · P6 Testing AI Systems · P7 Practical QA Examples
+# research: true -> the topic depends on current tools/versions/docs and will be web-researched.
+# Topics are consumed in order; add, remove or reorder freely. IDs must stay unique.
+
+phases:
+  1: "Testing fundamentals + AI fundamentals"
+  2: "Generative AI for testers"
+  3: "Prompt engineering"
+  4: "AI-assisted test automation"
+  5: "Testing AI applications"
+  6: "AI agents and advanced QA"
+  7: "AI risks, governance and responsible testing"
+  8: "Real-world QA architecture and Quality Engineering"
+
+topics:
+  # ── Phase 1 ──────────────────────────────────────────────
+  - {id: 1,  phase: 1, pillar: P5, topic: "Why the series: QA meets AI", concept: "Testing skills transfer to AI; AI does not replace test thinking", keywords: [series intro, qa mindset, ai]}
+  - {id: 2,  phase: 1, pillar: P5, topic: "Testing levels", concept: "Unit vs integration vs system tests and what each catches", keywords: [unit, integration, system, test pyramid]}
+  - {id: 3,  phase: 1, pillar: P1, topic: "What is Generative AI?", concept: "GenAI predicts plausible output, not verified truth", keywords: [generative ai, prediction, plausibility]}
+  - {id: 4,  phase: 1, pillar: P1, topic: "What is an LLM?", concept: "Next-token prediction explained for testers", keywords: [llm, next token, language model]}
+  - {id: 5,  phase: 1, pillar: P5, topic: "Smoke vs regression testing", concept: "Different goals, different suite sizes", keywords: [smoke, regression, suite design]}
+  - {id: 6,  phase: 1, pillar: P1, topic: "Tokens and context windows", concept: "Why long requirements get truncated or ignored", keywords: [tokens, context window, truncation]}
+  - {id: 7,  phase: 1, pillar: P1, topic: "Temperature", concept: "Randomness setting and its effect on test reproducibility", keywords: [temperature, determinism, randomness]}
+  - {id: 8,  phase: 1, pillar: P5, topic: "Test data management", concept: "Tests are only as good as the data behind them", keywords: [test data, fixtures, data management]}
+  - {id: 9,  phase: 1, pillar: P1, topic: "Hallucinations", concept: "Confident wrong answers and why testers must verify", keywords: [hallucination, verification, confidence]}
+  - {id: 10, phase: 1, pillar: P1, topic: "Embeddings", concept: "Meaning as vectors; similarity search for duplicate bug detection", keywords: [embeddings, vectors, similarity]}
+  - {id: 11, phase: 1, pillar: P5, topic: "Flaky tests", concept: "Flakiness erodes trust; root causes over retries", keywords: [flaky tests, retries, stability]}
+  - {id: 12, phase: 1, pillar: P7, topic: "Week recap: fundamentals map", concept: "Connecting testing fundamentals to AI fundamentals", keywords: [recap, fundamentals]}
+  # ── Phase 2 ──────────────────────────────────────────────
+  - {id: 13, phase: 2, pillar: P2, topic: "AI-generated test cases", concept: "Generated cases need coverage review, not just reading", keywords: [test case generation, coverage review]}
+  - {id: 14, phase: 2, pillar: P2, topic: "Requirement analysis with GenAI", concept: "Using AI to find ambiguity in requirements", keywords: [requirements, ambiguity, static testing]}
+  - {id: 15, phase: 2, pillar: P2, topic: "Test scenario generation", concept: "Scenarios vs cases; letting AI widen the scenario space", keywords: [scenarios, exploration, breadth]}
+  - {id: 16, phase: 2, pillar: P2, topic: "Synthetic test data generation", concept: "Realistic data without real personal data", keywords: [synthetic data, privacy, test data generation]}
+  - {id: 17, phase: 2, pillar: P5, topic: "Boundary value analysis", concept: "Classic technique AI often gets subtly wrong", keywords: [boundary value analysis, equivalence partitioning]}
+  - {id: 18, phase: 2, pillar: P2, topic: "Bug report analysis with AI", concept: "Summarising and clustering defects", keywords: [bug reports, clustering, triage]}
+  - {id: 19, phase: 2, pillar: P2, topic: "AI for test documentation", concept: "Docs that stay in sync with tests", keywords: [documentation, test plans]}
+  - {id: 20, phase: 2, pillar: P2, topic: "AI-assisted exploratory testing", concept: "AI as a charter and heuristics partner", keywords: [exploratory testing, charters, heuristics]}
+  - {id: 21, phase: 2, pillar: P2, topic: "Test prioritization with AI", concept: "Risk-based ordering from change and defect history", keywords: [prioritization, risk-based testing]}
+  - {id: 22, phase: 2, pillar: P2, topic: "Root cause analysis with AI", concept: "Hypotheses from logs; humans confirm", keywords: [root cause analysis, logs]}
+  - {id: 23, phase: 2, pillar: P2, topic: "QA reporting with GenAI", concept: "Turning test results into stakeholder language", keywords: [reporting, stakeholders, summaries]}
+  - {id: 24, phase: 2, pillar: P7, topic: "Myth: AI writes all your tests", concept: "Where generation helps and where judgement is required", keywords: [myth, test generation limits]}
+  # ── Phase 3 ──────────────────────────────────────────────
+  - {id: 25, phase: 3, pillar: P1, topic: "Prompt engineering for testers", concept: "Context turns generic output into useful test assets", keywords: [prompt engineering, context]}
+  - {id: 26, phase: 3, pillar: P7, topic: "Anatomy of a test-generation prompt", concept: "Role, context, constraints, format, examples", keywords: [prompt structure, constraints, format]}
+  - {id: 27, phase: 3, pillar: P1, topic: "Few-shot prompting", concept: "Showing your team's test case style", keywords: [few-shot, examples]}
+  - {id: 28, phase: 3, pillar: P1, topic: "Structured output", concept: "Asking for JSON/tables so output is machine-checkable", keywords: [structured output, json]}
+  - {id: 29, phase: 3, pillar: P7, topic: "Prompting for negative and edge cases", concept: "Explicitly asking for what models skip", keywords: [negative testing, edge cases]}
+  - {id: 30, phase: 3, pillar: P1, topic: "Step-by-step reasoning prompts", concept: "Asking the model to show its test design reasoning", keywords: [reasoning, test design]}
+  - {id: 31, phase: 3, pillar: P7, topic: "Prompt anti-patterns", concept: "Vague, overloaded and leading prompts", keywords: [anti-patterns, common mistakes]}
+  - {id: 32, phase: 3, pillar: P6, topic: "Prompts are code: version them", concept: "Prompt regression testing", keywords: [prompt versioning, prompt regression]}
+  - {id: 33, phase: 3, pillar: P1, topic: "RAG explained for testers", concept: "Grounding answers in your own docs", keywords: [rag, retrieval, grounding]}
+  - {id: 34, phase: 3, pillar: P7, topic: "Practical challenge: improve this prompt", concept: "Reader exercise on a weak prompt", keywords: [challenge, prompt improvement]}
+  # ── Phase 4 ──────────────────────────────────────────────
+  - {id: 35, phase: 4, pillar: P5, topic: "Page Object Model", concept: "Separating page structure from test logic", keywords: [page object model, maintainability]}
+  - {id: 36, phase: 4, pillar: P4, topic: "AI-assisted Selenium", concept: "Generating Selenium code and reviewing it critically", keywords: [selenium, code generation], research: true}
+  - {id: 37, phase: 4, pillar: P4, topic: "AI-assisted Playwright", concept: "Playwright codegen and AI assistance compared", keywords: [playwright, codegen], research: true}
+  - {id: 38, phase: 4, pillar: P4, topic: "Locator strategies", concept: "Stable, user-facing locators over brittle XPath", keywords: [locators, xpath, selectors], research: true}
+  - {id: 39, phase: 4, pillar: P4, topic: "Self-healing automation", concept: "What it fixes and what it can hide", keywords: [self-healing, locator repair]}
+  - {id: 40, phase: 4, pillar: P4, topic: "AI-assisted API testing", concept: "Generating API tests from an OpenAPI spec", keywords: [api testing, openapi, contract]}
+  - {id: 41, phase: 4, pillar: P5, topic: "Pytest fixtures", concept: "Reusable setup and teardown", keywords: [pytest, fixtures, python], research: true}
+  - {id: 42, phase: 4, pillar: P4, topic: "AI-generated assertions", concept: "Weak assertions make green tests meaningless", keywords: [assertions, test oracle]}
+  - {id: 43, phase: 4, pillar: P4, topic: "AI-assisted debugging of failing tests", concept: "Feeding stack traces and context effectively", keywords: [debugging, stack traces]}
+  - {id: 44, phase: 4, pillar: P5, topic: "CI/CD and automated tests", concept: "Where each suite belongs in the pipeline", keywords: [ci/cd, pipeline, quality gates]}
+  - {id: 45, phase: 4, pillar: P5, topic: "Jenkins pipelines for test automation", concept: "Declarative pipeline stages for tests", keywords: [jenkins, pipeline, jenkinsfile], research: true}
+  - {id: 46, phase: 4, pillar: P5, topic: "Parallel execution", concept: "Speed vs isolation trade-offs", keywords: [parallel execution, isolation]}
+  - {id: 47, phase: 4, pillar: P4, topic: "AI for test maintenance", concept: "Finding obsolete and duplicate tests", keywords: [test maintenance, duplicates]}
+  - {id: 48, phase: 4, pillar: P7, topic: "Common mistake: committing unreviewed AI code", concept: "Review checklist for generated automation", keywords: [code review, generated code]}
+  # ── Phase 5 ──────────────────────────────────────────────
+  - {id: 49, phase: 5, pillar: P6, topic: "Testing LLM applications", concept: "Non-deterministic output breaks exact-match assertions", keywords: [llm testing, non-determinism]}
+  - {id: 50, phase: 5, pillar: P6, topic: "Evaluation datasets", concept: "Golden sets as the regression suite for AI features", keywords: [evaluation dataset, golden set]}
+  - {id: 51, phase: 5, pillar: P6, topic: "Measuring relevance and accuracy", concept: "Defining what correct means for generated text", keywords: [relevance, accuracy, metrics]}
+  - {id: 52, phase: 5, pillar: P6, topic: "Consistency testing", concept: "Same question, many runs, acceptable variance", keywords: [consistency, variance]}
+  - {id: 53, phase: 5, pillar: P6, topic: "LLM-as-a-judge", concept: "Using a model to grade a model, and its pitfalls", keywords: [llm-as-a-judge, evaluation bias]}
+  - {id: 54, phase: 5, pillar: P6, topic: "Testing RAG systems", concept: "Test retrieval and generation separately", keywords: [rag testing, retrieval quality]}
+  - {id: 55, phase: 5, pillar: P6, topic: "Safety testing", concept: "Probing harmful or out-of-policy outputs", keywords: [safety testing, red teaming]}
+  - {id: 56, phase: 5, pillar: P6, topic: "Bias testing", concept: "Counterfactual inputs to reveal unequal treatment", keywords: [bias, counterfactual testing]}
+  - {id: 57, phase: 5, pillar: P6, topic: "Guardrails", concept: "Input/output checks and how to test them", keywords: [guardrails, validation]}
+  - {id: 58, phase: 5, pillar: P7, topic: "Mini case study: testing a support chatbot", concept: "End-to-end test plan for an LLM feature", keywords: [chatbot, case study, test plan]}
+  - {id: 59, phase: 5, pillar: P6, topic: "Property-based checks for AI output", concept: "Assert properties, not exact strings", keywords: [property-based, assertions, llm output]}
+  - {id: 60, phase: 5, pillar: P6, topic: "Testing AI in CI", concept: "Running evals as a pipeline gate", keywords: [evals, ci, quality gate]}
+  # ── Phase 6 ──────────────────────────────────────────────
+  - {id: 61, phase: 6, pillar: P1, topic: "What are AI agents?", concept: "Models that plan and use tools in a loop", keywords: [ai agents, tool use, planning]}
+  - {id: 62, phase: 6, pillar: P6, topic: "Testing AI agents", concept: "Test trajectories, not just final answers", keywords: [agent testing, trajectories]}
+  - {id: 63, phase: 6, pillar: P4, topic: "Agents for exploratory UI testing", concept: "What agentic browsing can and cannot find", keywords: [agentic testing, ui exploration], research: true}
+  - {id: 64, phase: 6, pillar: P6, topic: "Tool-call validation", concept: "Checking agents call the right tool with right arguments", keywords: [tool calls, arguments]}
+  - {id: 65, phase: 6, pillar: P1, topic: "Model Context Protocol for testers", concept: "Standard way to connect AI to tools and data", keywords: [mcp, integration], research: true}
+  - {id: 66, phase: 6, pillar: P1, topic: "Fine-tuning vs RAG vs prompting", concept: "Choosing the cheapest approach that works", keywords: [fine-tuning, rag, prompting, comparison]}
+  - {id: 67, phase: 6, pillar: P1, topic: "Multimodal AI in testing", concept: "Screenshots and visual checks with vision models", keywords: [multimodal, visual testing]}
+  - {id: 68, phase: 6, pillar: P1, topic: "LLMOps for QA", concept: "Monitoring quality after release", keywords: [llmops, monitoring, production]}
+  - {id: 69, phase: 6, pillar: P6, topic: "Agent reliability and failure modes", concept: "Loops, wrong tools, partial completion", keywords: [reliability, failure modes]}
+  - {id: 70, phase: 6, pillar: P7, topic: "Practical challenge: design an agent test", concept: "Reader exercise on agent test design", keywords: [challenge, agent test design]}
+  # ── Phase 7 ──────────────────────────────────────────────
+  - {id: 71, phase: 7, pillar: P3, topic: "Prompt injection", concept: "Untrusted input that changes model behaviour", keywords: [prompt injection, security]}
+  - {id: 72, phase: 7, pillar: P3, topic: "Confidential data and AI tools", concept: "What never goes into a public AI tool", keywords: [confidentiality, data leakage]}
+  - {id: 73, phase: 7, pillar: P3, topic: "Data privacy in AI testing", concept: "Test data, logs and personal data", keywords: [privacy, personal data]}
+  - {id: 74, phase: 7, pillar: P3, topic: "Human-in-the-loop", concept: "Where human review is non-negotiable", keywords: [human-in-the-loop, review]}
+  - {id: 75, phase: 7, pillar: P3, topic: "Validating AI output", concept: "A tester's checklist for any AI-generated artefact", keywords: [output validation, checklist]}
+  - {id: 76, phase: 7, pillar: P3, topic: "Incorrect reasoning", concept: "Right answer, wrong reasoning and vice versa", keywords: [reasoning errors]}
+  - {id: 77, phase: 7, pillar: P3, topic: "Responsible AI for QA teams", concept: "Practical principles, not slogans", keywords: [responsible ai, principles]}
+  - {id: 78, phase: 7, pillar: P3, topic: "AI governance and regulation basics", concept: "What QA should know about AI regulation", keywords: [governance, regulation, eu ai act], research: true}
+  - {id: 79, phase: 7, pillar: P1, topic: "ISTQB and AI testing certification landscape", concept: "What exists and what it covers", keywords: [istqb, certification, ct-genai], research: true}
+  - {id: 80, phase: 7, pillar: P7, topic: "Myth: AI output is objective", concept: "Bias in, bias out", keywords: [myth, objectivity, bias]}
+  # ── Phase 8 ──────────────────────────────────────────────
+  - {id: 81, phase: 8, pillar: P5, topic: "Test architecture", concept: "Layers of a maintainable automation framework", keywords: [test architecture, framework layers]}
+  - {id: 82, phase: 8, pillar: P5, topic: "Automation strategy", concept: "What not to automate", keywords: [automation strategy, roi]}
+  - {id: 83, phase: 8, pillar: P5, topic: "Test reporting that people read", concept: "Signals over raw pass counts", keywords: [test reporting, dashboards]}
+  - {id: 84, phase: 8, pillar: P5, topic: "Git workflows for test code", concept: "Branching, reviews and test ownership", keywords: [git, branching, code review]}
+  - {id: 85, phase: 8, pillar: P5, topic: "Shift-left and shift-right", concept: "Quality before and after release", keywords: [shift-left, shift-right, observability]}
+  - {id: 86, phase: 8, pillar: P5, topic: "Quality engineering vs QA", concept: "From finding bugs to building quality in", keywords: [quality engineering, culture]}
+  - {id: 87, phase: 8, pillar: P4, topic: "Where AI fits in a QE architecture", concept: "Mapping AI use cases onto the pipeline", keywords: [qe architecture, ai integration]}
+  - {id: 88, phase: 8, pillar: P7, topic: "Career insight: skills for AI-era testers", concept: "Fundamentals plus AI literacy", keywords: [career, skills]}
+  - {id: 89, phase: 8, pillar: P7, topic: "Mini case study: AI-assisted regression strategy", concept: "Combining prioritization, generation and review", keywords: [regression strategy, case study]}
+  - {id: 90, phase: 8, pillar: P7, topic: "90-day recap: the QA × AI map", concept: "Testing to automation to AI to quality engineering", keywords: [recap, series summary]}

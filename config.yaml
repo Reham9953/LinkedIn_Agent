@@ -1,0 +1,56 @@
+# ─────────────────────────────────────────────────────────────
+#  AI × QA — LinkedIn content system configuration
+#  Secrets are NEVER stored here. They come from environment
+#  variables (GitHub Actions secrets): ANTHROPIC_API_KEY,
+#  LINKEDIN_ACCESS_TOKEN, LINKEDIN_PERSON_URN.
+# ─────────────────────────────────────────────────────────────
+
+schedule:
+  timezone: "Africa/Cairo"
+  publish_hour: 9          # local hour (0-23) when the daily run is allowed to post
+  window_hours: 2          # tolerance for delayed GitHub cron runs (never posts twice a day)
+  # The GitHub workflow wakes up at two UTC times; the code only proceeds when the
+  # local Cairo hour matches publish_hour. This handles Egypt's daylight saving time.
+
+publishing:
+  # "review" -> generate a draft, wait for your approval, then publish (recommended)
+  # "auto"   -> generate, quality-check and publish without human review
+  mode: "review"
+  series_label: "AI × QA — Day {day:02d}"
+  max_chars: 2900          # LinkedIn hard limit is 3,000 characters for commentary
+  unicode_bold: true       # convert **bold** to Unicode bold (LinkedIn has no markdown)
+
+llm:
+  model: "claude-sonnet-5-5"
+  judge_model: "claude-sonnet-5-5"
+  max_tokens: 2000
+  web_search_tool: "web_search_20250305"
+  max_searches: 5
+
+quality:
+  # Your spec asks for 8 criteria scored 1-10 but a threshold of 45/50.
+  # The checker scores all 8 (max 80) and normalises to 50, so 45/50 = 72/80.
+  threshold_out_of_50: 45
+  max_attempts: 3
+  max_emojis: 3
+  hashtags_min: 3
+  hashtags_max: 5
+
+repetition:
+  cooldown_days: 30        # same concept not repeated within this window
+  similarity_reject: 0.55  # TF-IDF cosine vs any post in the cooldown window
+  keyword_overlap_reject: 0.6
+
+rotation:
+  # Monday=0 … Sunday=6 (Python weekday). Preferred post type per day.
+  0: "concept explanation"
+  1: "automation example"
+  2: "GenAI testing use case"
+  3: "practical example"
+  4: "myth or common mistake"
+  5: "advanced topic"
+  6: "weekly recap / QA insight"
+
+linkedin:
+  api_version: "202605"    # YYYYMM — LinkedIn retires versions after ~1 year; bump when needed
+  visibility: "PUBLIC"
