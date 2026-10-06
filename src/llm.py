@@ -46,7 +46,10 @@ class LLM:
         code, text = 0, ""
         for attempt in range(attempts):
             r = requests.post(url, headers=headers, json=body, timeout=180)
-            code, text = r.status_code, r.text[:300]
+            code, text = r.status_code, r.text[:800]
+            # A hard quota (e.g. "limit: 0" on the free tier) won't recover by waiting.
+            if code == 429 and ("limit: 0" in r.text or "PerDay" in r.text):
+                raise RateLimited(f"No free quota left for {body.get('model')} today")
             if code in RETRY:
                 wait = int(r.headers.get("retry-after", 0) or 0) or 2 ** attempt * 5
                 kind = "rate limited" if code == 429 else "model busy"
@@ -62,8 +65,8 @@ class LLM:
             except ValueError:
                 raise RuntimeError(f"LLM API returned non-JSON (HTTP {code}): {text[:200]!r}")
         if code == 429:
-            raise RateLimited(f"Rate limit / quota reached (HTTP 429): {text}")
-        raise Overloaded(f"Model {body.get('model')} unavailable (HTTP {code}): {text}")
+            raise RateLimited(f"Rate limit reached on {body.get('model')} (HTTP 429)")
+        raise Overloaded(f"Model {body.get('model')} unavailable (HTTP {code}): {text[:300]}")
 
     # ── providers ────────────────────────────────────────────
     def _gemini(self, system, prompt, model):
@@ -112,11 +115,12 @@ class LLM:
                 if self.provider == "gemini":
                     return self._gemini(system, prompt, m)
                 return self._anthropic(system, prompt, m, web_search)
-            except (Overloaded, ModelMissing) as e:
+            except (Overloaded, ModelMissing, RateLimited) as e:
                 print(f"  {e}", flush=True)
                 last_err = e
-        raise RuntimeError(f"All models busy ({', '.join(chain)}). This is temporary on Google's side; "
-                           f"re-run the workflow in a few minutes. Last error: {last_err}")
+        raise RuntimeError(f"No model could answer ({', '.join(chain)}). If these are quota errors, check "
+                           f"https://aistudio.google.com/usage for which models have free quota and put "
+                           f"those in config.yaml. Last error: {last_err}")
 
     def complete_json(self, system: str, prompt: str, model: str | None = None,
                       web_search: bool = False) -> tuple[dict, list[dict]]:
