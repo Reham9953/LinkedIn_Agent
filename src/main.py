@@ -237,13 +237,17 @@ def cmd_propose(args, con, cfg, roadmap, profile):
 
 
 def cmd_models(args, con, cfg, *_):
-    from .llm import list_github_models
-    models = list_github_models()
-    for m in models:
-        log(m)
+    from .llm import list_github_models, probe
+    models, err = list_github_models()
+    if models:
+        log("Available models:")
+        for m in models:
+            log(f"  {m}")
+    else:
+        log(f"Catalog listing unavailable ({err}). Browse models at https://github.com/marketplace?type=models")
+    log("\nTesting configured models with a real request:")
     for key in ("model", "judge_model"):
-        ok = cfg["llm"][key] in models
-        log(f"{key}: {cfg['llm'][key]} -> {'available' if ok else 'NOT FOUND, pick one from the list above'}")
+        log(f"  {key}: {cfg['llm'][key]} -> {probe(cfg, cfg['llm'][key])}")
 
 
 def main():

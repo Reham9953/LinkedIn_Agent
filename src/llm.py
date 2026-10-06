@@ -91,23 +91,36 @@ class LLM:
         return parse_json(text), sources
 
 
-def list_github_models() -> list[str]:
-    """List model IDs from the GitHub Models catalog (requires GITHUB_TOKEN with models: read)."""
+def list_github_models() -> tuple[list[str], str]:
+    """Best-effort catalog listing. Returns (model_ids, error_message)."""
     token = os.environ.get("GITHUB_TOKEN")
     if not token:
-        raise RuntimeError("GITHUB_TOKEN is not set")
-    headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json",
-               "X-GitHub-Api-Version": "2022-11-28"}
-    r = requests.get(GITHUB_CATALOG, headers=headers, timeout=30)
+        return [], "GITHUB_TOKEN is not set"
+    last = ""
+    for version in ("2026-03-10", "2022-11-28"):
+        headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json",
+                   "X-GitHub-Api-Version": version}
+        r = requests.get(GITHUB_CATALOG, headers=headers, timeout=30)
+        try:
+            data = r.json()
+        except ValueError:
+            last = f"HTTP {r.status_code}, non-JSON body {r.text[:100]!r}"
+            continue
+        if r.status_code >= 400:
+            last = f"HTTP {r.status_code}: {str(data)[:200]}"
+            continue
+        items = data.get("models", data.get("data", [])) if isinstance(data, dict) else data
+        return sorted(m.get("id") or m.get("name") for m in items if isinstance(m, dict)), ""
+    return [], last
+
+
+def probe(cfg: dict, model: str) -> str:
+    """Send a tiny request to check a model really works. Returns 'OK' or the error."""
     try:
-        data = r.json()
-    except ValueError:
-        raise RuntimeError(f"Catalog request failed (HTTP {r.status_code}). "
-                           f"Check the workflow has 'models: read' permission. Body: {r.text[:300]!r}")
-    if r.status_code >= 400:
-        raise RuntimeError(f"Catalog request failed (HTTP {r.status_code}): {str(data)[:300]}")
-    items = data.get("models", data.get("data", [])) if isinstance(data, dict) else data
-    return sorted(m.get("id") or m.get("name") for m in items if isinstance(m, dict))
+        text, _ = LLM(cfg).complete("Reply with the single word: pong", "ping", model=model)
+        return f"OK (replied: {text[:20]!r})"
+    except Exception as e:  # noqa: BLE001 - report any failure to the user
+        return f"FAILED: {e}"
 
 
 def parse_json(text: str) -> dict:
