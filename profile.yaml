@@ -1,31 +1,75 @@
 # ─────────────────────────────────────────────────────────────
-#  YOUR facts. The generator may only make first-person claims
-#  that are supported by this file. Edit it honestly — anything
-#  not listed here will never be claimed as your experience.
+#  YOUR facts (built from your LinkedIn profile, Oct 2026).
+#  The generator may only make first-person claims supported here.
+#  Contact details are deliberately NOT stored.
 # ─────────────────────────────────────────────────────────────
 
-role: "Software QA / Quality Engineer — Test Automation & Generative AI"
+role: "QA Engineer — manual testing today, test automation background, focused on AI in QA"
+background: "Mechatronics engineer who moved into software testing"
 
-hands_on_with:          # tools you have genuinely used
+experience_summary:      # safe, general claims — no client, project or employer-internal details
+  - "Around 4 years in software testing across automotive and enterprise software"
+  - "Manual testing: functional, regression, exploratory and end-to-end testing in Agile teams"
+  - "Full test cycles: requirements review, test case design, execution, defect reporting, release sign-off"
+  - "Requirements analysis where documentation was incomplete, turning business needs into testable specs"
+  - "Has used AI-assisted test case generation on real projects"
+  - "Involved in early design ideas for an AI-powered QA solution (requirements → test generation → execution reporting)"
+  - "Earlier: automated tests with CAPL and Python in automotive software testing"
+  - "Earlier: continuous testing within a CI/CD pipeline"
+  - "Earlier: test plans, strategies, scenarios and traceability matrices; documentation aligned with ASPICE"
+  - "Automotive diagnostics testing (UDS, ISO 14229, NRCs)"
+  - "Crowdtesting: functional, usability, localization and compatibility testing"
+
+hands_on_with:           # tools genuinely used
   - Python
-  - Selenium
-  - JavaScript
   - CAPL
+  - Jira
+  - Postman
   - API testing
   - CI/CD
-  - Jenkins
-  - Git
+  - AI-assisted test case generation tools
 
-exploring:              # things you are learning (claims limited to "I'm exploring…")
+familiar_with:           # claim familiarity only, not deep expertise
+  - Robot Framework
+
+exploring:               # learning — claims limited to "I'm exploring / learning…"
   - Generative AI in testing
+  - RAG
+  - MCP (Model Context Protocol)
+  - AI agents
   - Prompt engineering for testers
-  - Playwright
-  - LLM application testing
+  - Test automation frameworks (UI automation)
+  - Agile and SAFe
 
-certifications: []      # only completed certifications, e.g. "ISTQB CTFL"
-trainings_attended: []  # attended ≠ certified; listed separately on purpose
+certifications:          # completed certifications only
+  - "ISTQB® Certified Tester Foundation Level (CTFL) — Feb 2026"
+  - "A4Q Certified Practical Tester — May 2025"
+
+trainings_attended:      # attended courses — NOT certifications
+  - Agile Software Development
+  - Agile Foundations
+  - "Programming Foundations: Software Testing/QA"
+  - SAFe Foundations
+  - AI Essentials
+  - Generative AI Awareness
+  - RAG
+  - MCP
+  - AI Agent Skills
+  - Automated Test Framework 4.0
+  - Functional Testing
+
+never_disclose:
+  - "Employer or client names, client projects, internal tools, internal initiatives or their designs"
+  - "Specific metrics from past jobs (e.g. percentages from the CV) — they need context a post can't give"
+  - "Confidential or internal information of any kind"
+
+voice_notes:
+  - "Playful but professional — enjoys 'breaking things on purpose'"
+  - "Cares about why quality matters, not just test execution"
+  - "Always learning; comfortable saying 'I'm still exploring this'"
 
 allowed_first_person_phrases:
   - "From a QA perspective..."
   - "In test automation, this becomes especially interesting because..."
   - "One thing I've learned while exploring AI for testing is..."
+  - "As a tester, ..."

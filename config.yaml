@@ -8,7 +8,7 @@
 
 schedule:
   timezone: "Africa/Cairo"
-  publish_hour: 9          # local hour (0-23) when the daily run is allowed to post
+  publish_hour: 11           # local hour (0-23) when the daily run is allowed to post
   window_hours: 2          # tolerance for delayed GitHub cron runs (never posts twice a day)
   # The GitHub workflow wakes up at two UTC times; the code only proceeds when the
   # local Cairo hour matches publish_hour. This handles Egypt's daylight saving time.

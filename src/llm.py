@@ -92,9 +92,22 @@ class LLM:
 
 
 def list_github_models() -> list[str]:
-    r = requests.get(GITHUB_CATALOG, timeout=30)
-    r.raise_for_status()
-    return sorted(m["id"] for m in r.json())
+    """List model IDs from the GitHub Models catalog (requires GITHUB_TOKEN with models: read)."""
+    token = os.environ.get("GITHUB_TOKEN")
+    if not token:
+        raise RuntimeError("GITHUB_TOKEN is not set")
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json",
+               "X-GitHub-Api-Version": "2022-11-28"}
+    r = requests.get(GITHUB_CATALOG, headers=headers, timeout=30)
+    try:
+        data = r.json()
+    except ValueError:
+        raise RuntimeError(f"Catalog request failed (HTTP {r.status_code}). "
+                           f"Check the workflow has 'models: read' permission. Body: {r.text[:300]!r}")
+    if r.status_code >= 400:
+        raise RuntimeError(f"Catalog request failed (HTTP {r.status_code}): {str(data)[:300]}")
+    items = data.get("models", data.get("data", [])) if isinstance(data, dict) else data
+    return sorted(m.get("id") or m.get("name") for m in items if isinstance(m, dict))
 
 
 def parse_json(text: str) -> dict:

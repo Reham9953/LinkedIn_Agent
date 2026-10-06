@@ -236,10 +236,14 @@ def cmd_propose(args, con, cfg, roadmap, profile):
     log(f"Review {out} and copy the topics you like into roadmap.yaml (add unique ids).")
 
 
-def cmd_models(*_):
+def cmd_models(args, con, cfg, *_):
     from .llm import list_github_models
-    for m in list_github_models():
+    models = list_github_models()
+    for m in models:
         log(m)
+    for key in ("model", "judge_model"):
+        ok = cfg["llm"][key] in models
+        log(f"{key}: {cfg['llm'][key]} -> {'available' if ok else 'NOT FOUND, pick one from the list above'}")
 
 
 def main():
