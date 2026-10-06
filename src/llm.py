@@ -1,7 +1,7 @@
 """LLM client with two providers, no SDK dependency.
 
-provider: "github"    -> GitHub Models (free tier, uses the GITHUB_TOKEN that GitHub
-                         Actions provides automatically; no payment, no extra key)
+provider: "gemini"    -> Google Gemini API free tier (key from Google AI Studio,
+                         no credit card). Uses Gemini's OpenAI-compatible endpoint.
 provider: "anthropic" -> Claude API (paid; supports built-in web search for research)
 """
 import json
@@ -12,16 +12,16 @@ import time
 import requests
 
 ANTHROPIC_URL = "https://api.anthropic.com/v1/messages"
-GITHUB_URL = "https://models.github.ai/inference/chat/completions"
-GITHUB_CATALOG = "https://models.github.ai/catalog/models"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
+GEMINI_MODELS = "https://generativelanguage.googleapis.com/v1beta/models"
 RETRY = (429, 500, 502, 503, 529)
 
 
 class LLM:
     def __init__(self, cfg: dict):
         self.cfg = cfg["llm"]
-        self.provider = self.cfg.get("provider", "github")
-        env = "GITHUB_TOKEN" if self.provider == "github" else "ANTHROPIC_API_KEY"
+        self.provider = self.cfg.get("provider", "gemini")
+        env = "GEMINI_API_KEY" if self.provider == "gemini" else "ANTHROPIC_API_KEY"
         self.key = os.environ.get(env)
         if not self.key:
             raise RuntimeError(f"{env} is not set")
@@ -40,16 +40,19 @@ class LLM:
                 continue
             if r.status_code >= 400:
                 raise RuntimeError(f"LLM API error {r.status_code}: {r.text[:500]}")
-            return r.json()
+            try:
+                return r.json()
+            except ValueError:
+                raise RuntimeError(f"LLM API returned non-JSON (HTTP {r.status_code}): {r.text[:200]!r}")
         raise RuntimeError("LLM API still rate limited after retries (daily free quota may be used up).")
 
     # ── providers ────────────────────────────────────────────
-    def _github(self, system, prompt, model):
+    def _gemini(self, system, prompt, model):
         body = {"model": model, "messages": [{"role": "system", "content": system},
                                              {"role": "user", "content": prompt}]}
         headers = {"Authorization": f"Bearer {self.key}", "Content-Type": "application/json"}
-        data = self._post(GITHUB_URL, headers, body)
-        return data["choices"][0]["message"]["content"].strip(), []
+        data = self._post(GEMINI_URL, headers, body)
+        return (data["choices"][0]["message"].get("content") or "").strip(), []
 
     def _anthropic(self, system, prompt, model, web_search):
         body = {"model": model, "max_tokens": self.cfg["max_tokens"], "system": system,
@@ -80,8 +83,8 @@ class LLM:
     def complete(self, system: str, prompt: str, model: str | None = None,
                  web_search: bool = False) -> tuple[str, list[dict]]:
         model = model or self.cfg["model"]
-        if self.provider == "github":
-            return self._github(system, prompt, model)
+        if self.provider == "gemini":
+            return self._gemini(system, prompt, model)
         return self._anthropic(system, prompt, model, web_search)
 
     def complete_json(self, system: str, prompt: str, model: str | None = None,
@@ -91,27 +94,22 @@ class LLM:
         return parse_json(text), sources
 
 
-def list_github_models() -> tuple[list[str], str]:
-    """Best-effort catalog listing. Returns (model_ids, error_message)."""
-    token = os.environ.get("GITHUB_TOKEN")
-    if not token:
-        return [], "GITHUB_TOKEN is not set"
-    last = ""
-    for version in ("2026-03-10", "2022-11-28"):
-        headers = {"Authorization": f"Bearer {token}", "Accept": "application/vnd.github+json",
-                   "X-GitHub-Api-Version": version}
-        r = requests.get(GITHUB_CATALOG, headers=headers, timeout=30)
-        try:
-            data = r.json()
-        except ValueError:
-            last = f"HTTP {r.status_code}, non-JSON body {r.text[:100]!r}"
-            continue
-        if r.status_code >= 400:
-            last = f"HTTP {r.status_code}: {str(data)[:200]}"
-            continue
-        items = data.get("models", data.get("data", [])) if isinstance(data, dict) else data
-        return sorted(m.get("id") or m.get("name") for m in items if isinstance(m, dict)), ""
-    return [], last
+def list_models() -> tuple[list[str], str]:
+    """List Gemini model IDs that support text generation. Returns (ids, error)."""
+    key = os.environ.get("GEMINI_API_KEY")
+    if not key:
+        return [], "GEMINI_API_KEY is not set"
+    r = requests.get(GEMINI_MODELS, headers={"x-goog-api-key": key},
+                     params={"pageSize": 1000}, timeout=30)
+    try:
+        data = r.json()
+    except ValueError:
+        return [], f"HTTP {r.status_code}, non-JSON body {r.text[:100]!r}"
+    if r.status_code >= 400:
+        return [], f"HTTP {r.status_code}: {str(data)[:200]}"
+    ids = [m["name"].removeprefix("models/") for m in data.get("models", [])
+           if "generateContent" in m.get("supportedGenerationMethods", [])]
+    return sorted(ids), ""
 
 
 def probe(cfg: dict, model: str) -> str:

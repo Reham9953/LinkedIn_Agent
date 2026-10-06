@@ -11,7 +11,7 @@ Usage:
   python -m src.main publish [--day N]    publish an approved post now
   python -m src.main status               series progress
   python -m src.main propose-topics       suggest new roadmap topics for review
-  python -m src.main models               list available GitHub Models IDs
+  python -m src.main models               list available Gemini models and test the configured ones
 """
 import argparse
 import sys
@@ -237,14 +237,14 @@ def cmd_propose(args, con, cfg, roadmap, profile):
 
 
 def cmd_models(args, con, cfg, *_):
-    from .llm import list_github_models, probe
-    models, err = list_github_models()
+    from .llm import list_models, probe
+    models, err = list_models()
     if models:
         log("Available models:")
         for m in models:
             log(f"  {m}")
     else:
-        log(f"Catalog listing unavailable ({err}). Browse models at https://github.com/marketplace?type=models")
+        log(f"Model listing unavailable ({err}).")
     log("\nTesting configured models with a real request:")
     for key in ("model", "judge_model"):
         log(f"  {key}: {cfg['llm'][key]} -> {probe(cfg, cfg['llm'][key])}")

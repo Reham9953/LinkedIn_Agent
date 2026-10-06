@@ -1,14 +1,14 @@
 # ─────────────────────────────────────────────────────────────
 #  AI × QA — LinkedIn content system configuration
 #  Secrets are NEVER stored here. They come from environment
-#  variables: GITHUB_TOKEN (automatic in GitHub Actions),
+#  variables: GEMINI_API_KEY (free, from Google AI Studio),
 #  LINKEDIN_ACCESS_TOKEN, LINKEDIN_PERSON_URN, and ANTHROPIC_API_KEY
 #  only if you switch llm.provider to "anthropic".
 # ─────────────────────────────────────────────────────────────
 
 schedule:
   timezone: "Africa/Cairo"
-  publish_hour: 11           # local hour (0-23) when the daily run is allowed to post
+  publish_hour: 9          # local hour (0-23) when the daily run is allowed to post
   window_hours: 2          # tolerance for delayed GitHub cron runs (never posts twice a day)
   # The GitHub workflow wakes up at two UTC times; the code only proceeds when the
   # local Cairo hour matches publish_hour. This handles Egypt's daylight saving time.
@@ -22,14 +22,14 @@ publishing:
   unicode_bold: true       # convert **bold** to Unicode bold (LinkedIn has no markdown)
 
 llm:
-  # "github"    -> GitHub Models: FREE, no key needed in GitHub Actions. No web search,
-  #                so research topics are written without version-specific claims.
-  # "anthropic" -> Claude API: paid, includes web search with sources.
-  provider: "github"
-  # GitHub Models IDs use publisher/model. Run `python -m src.main models` (or the
-  # "models" workflow command) to list what's currently available and swap if needed.
-  model: "openai/gpt-4.1"
-  judge_model: "openai/gpt-4.1-mini"
+  # "gemini"    -> Google Gemini API free tier: no credit card, key from aistudio.google.com.
+  #                No web search here, so research topics avoid version-specific claims.
+  # "anthropic" -> Claude API: paid, includes web search with cited sources.
+  provider: "gemini"
+  # "-latest" aliases always point to Google's current Flash models, so they don't go stale.
+  # Run the "models" workflow command to list exact IDs and test these two.
+  model: "gemini-flash-latest"
+  judge_model: "gemini-flash-lite-latest"
   # For provider "anthropic" use e.g. model: "claude-sonnet-5-5", judge_model: "claude-haiku-4-5-20251001"
   max_tokens: 2000
   web_search_tool: "web_search_20250305"
